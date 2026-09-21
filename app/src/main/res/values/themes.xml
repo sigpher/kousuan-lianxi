@@ -47,8 +47,8 @@
 
     <style name="Button.CountOutlined" parent="Widget.MaterialComponents.Button.OutlinedButton">
         <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">52dp</item>
-        <item name="android:textSize">16sp</item>
+        <item name="android:layout_height">56dp</item>
+        <item name="android:textSize">17sp</item>
         <item name="shapeAppearance">@style/ShapeAppearance.App.Button.Small</item>
     </style>
 </resources>
