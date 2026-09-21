@@ -205,7 +205,7 @@ class ArithmeticViewModel(application: Application) : AndroidViewModel(applicati
             if (reward != null) {
                 repository.insertReward(reward)
                 _message.value = when (reward) {
-                    RewardRules.YELLOW_FLOWER -> "太棒了！奖励一朵小黄花 🌸"
+                    RewardRules.YELLOW_FLOWER -> "太棒了！奖励一朵小花 🌸"
                     RewardRules.RED_HEART -> "太棒了！奖励一颗红心 ❤️"
                     RewardRules.SAPPHIRE -> "太棒了！奖励一颗蓝宝石 💎"
                     RewardRules.CROWN -> "太棒了！奖励一枚皇冠 👑"

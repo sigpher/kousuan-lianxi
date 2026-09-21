@@ -78,7 +78,7 @@
             android:textColor="@color/color_yellow_flower"
             android:textSize="18sp"
             android:textStyle="bold"
-            tools:text="获得小黄花：0 朵" />
+            tools:text="获得小花：0 朵" />
 
         <TextView
             android:id="@+id/text_red_heart_count"
