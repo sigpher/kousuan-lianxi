@@ -29,7 +29,7 @@
     <string name="count_100">100 题</string>
     <string name="btn_start">开始练习</string>
     <string name="btn_review_wrong">错题重练</string>
-    <string name="btn_endless">♾️ 无限挑战</string>
+    <string name="btn_endless">无限挑战</string>
     <string name="quiz_endless">无限挑战</string>
     <string name="endless_progress">已答对 %1$d 题</string>
     <string name="endless_score">无限模式：答对 %1$d 题</string>
