@@ -16,6 +16,11 @@
 - **个人纪录**：记录每种题量的最佳成绩、用时与最高连击，打破纪录会显示「新纪录」。
 - **错题与历史**：「查看错题」会收藏每次答错的题目，可通过错题重练删除；「历史错题」为全量历史记录，只查询不删除。错题卡片对齐展示算式 / 正确答案 / 你的答案。
 - **成就页**：查看小花、红心、蓝宝石、皇冠数量、当前等级、升级所需皇冠数以及全部个人最佳纪录。
+- **背景音乐**：内置 10 首舒缓的开源背景音乐（默认关闭），主页提供「🎵 背景音乐」开关，随机轮播播放，设置持久保存。
+
+## 音乐来源
+
+内置背景音乐取自开源 CC0 曲库：**Ambient, Calm & Meditative** 分类（[meme2-cmd2/CC0-Music](https://github.com/meme2-cmd2/CC0-Music)，CC0-1.0），10 首曲目：Connecting Rainbows、Deep Tones、Forest Night、Horizon Flare、Martini Sunset、Meditating Beat、Nomadic Sunset、Pond、River Meditation、The Lagoon。CC0 授权可自由使用，无需署名。
 
 ## 技术栈
 

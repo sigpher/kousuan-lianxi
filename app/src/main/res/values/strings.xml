@@ -5,6 +5,7 @@
 
     <string name="quiz_title">口算练习</string>
     <string name="quiz_subtitle">加减乘除，混合出题</string>
+    <string name="music_label">🎵 背景音乐</string>
     <string name="setup_flower_chip">🌸 ×%1$d</string>
     <string name="setup_heart_chip">❤️ ×%1$d</string>
     <string name="setup_gem_chip">💎 ×%1$d</string>

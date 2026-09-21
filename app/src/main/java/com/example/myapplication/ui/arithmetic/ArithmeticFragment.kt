@@ -21,6 +21,7 @@ import androidx.navigation.findNavController
 import com.example.myapplication.R
 import com.example.myapplication.arithmetic.EnergyRules
 import com.example.myapplication.arithmetic.RewardRules
+import com.example.myapplication.audio.MusicPlayer
 import com.example.myapplication.databinding.FragmentArithmeticBinding
 import kotlin.random.Random
 
@@ -73,6 +74,23 @@ class ArithmeticFragment : Fragment() {
         defaultCountTextColors = binding.count10.textColors
         val welcomes = resources.getStringArray(R.array.setup_welcome)
         binding.textSetupWelcome.text = welcomes[Random.nextInt(welcomes.size)]
+
+        binding.switchMusic.isChecked = MusicPlayer.isEnabled(requireContext())
+        binding.switchMusic.setOnCheckedChangeListener { _, checked ->
+            MusicPlayer.setEnabled(requireContext(), checked)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (MusicPlayer.isEnabled(requireContext())) {
+            MusicPlayer.start(requireContext())
+        }
+    }
+
+    override fun onPause() {
+        MusicPlayer.pause()
+        super.onPause()
     }
 
     private fun setupQuiz(viewModel: ArithmeticViewModel) {
