@@ -1,0 +1,32 @@
+# AGENTS.md
+
+Kotlin Android app, single `:app` module, package `com.example.myapplication`. A Grade-3 oral arithmetic (口算) trainer: ``nav_transform`` (start destination) hosts the quiz UI, ``nav_review`` (错题本) is reachable from it. All other template fragments were removed — no bottom nav, no navigation drawer, single-screen app. No README, CI, or other instruction files exist.
+
+## Commands (Windows)
+
+- Build: `.\gradlew.bat assembleDebug`
+- Install on device/emulator: `.\gradlew.bat installDebug`
+- Unit tests (host JVM): `.\gradlew.bat test` — generator/review-selector tests in `app/src/test/.../arithmetic/`; the rest in `app/src/androidTest/` require a device/emulator
+- Lint: `.\gradlew.bat lint`
+
+## Toolchain (agents will guess these wrong)
+
+- No `java` on PATH; `JAVA_HOME` must be set explicitly, e.g. `$env:JAVA_HOME = "C:\Program Files\Java\latest\jdk-27"` before every `gradlew.bat` invocation in PowerShell.
+- AGP 9.4.1 + Gradle 9.6.0, running on JDK 25 auto-provisioned by the foojay resolver (`gradle/gradle-daemon-jvm.properties`). Don't assume a local JDK.
+- AGP 9 DSL — do not revert to old syntax:
+  - `compileSdk { version = release(37) }` (`app/build.gradle.kts:7`)
+  - `optimization { enable = false }` replaces `isMinifyEnabled` (R8 is off in release).
+- Keep rules go in `app/src/main/keepRules/` — AGP auto-combines that whole directory; there is no `proguard-rules.pro`.
+- `org.gradle.configuration-cache=true` is set; keep build scripts config-cache compatible.
+- `local.properties` sets `sdk.dir=D:\android_sdk` and is gitignored (machine-specific). Builds fail if it's missing.
+- Java 11 source/target compatibility regardless of toolchain version.
+
+## App structure
+
+- View Binding is enabled; `MainActivity` and all fragments use generated `*Binding` classes.
+- One nav graph (`res/navigation/mobile_navigation.xml`, start destination `nav_transform`) with the quiz plus two non-top-level pages — `nav_review` (错题本) and `nav_achievements` (成就, shows 👑 crown count from the `rewards` table via `AchievementsFragment`/`AchievementsViewModel`) — navigated via `navigate(...)`. No bottom nav / drawer / menus; `MainActivity` only wires the toolbar + up-navigation.
+- The quiz lives in `ui/arithmetic/` (`ArithmeticFragment` + `ArithmeticViewModel`, a 3-phase setup/quiz/result state machine). Rounds are always mixed operations (加减乘除, no operation picker). Add/sub operands are ≤100, sum ≤100, subtraction non-negative. Setup only picks the question count (10/20/50/100); the selected count button is styled purple bg + white text via `backgroundTintList`/`setTextColor` in the `questionCount` observer (restore default colors with the captured `defaultCountTextColors`, never pass `null` to `setTextColor` — AOSP NPEs and the app crashes on launch). Setup also shows a random welcome line (from `setup_welcome` string-array, picked in `setupSetup`) and a 👑-count chip refreshed via `refreshCrownCount()` whenever the phase returns to SETUP. Answering advances on the main thread: a correct answer jumps to the next question immediately; a wrong answer shows feedback for ~0.5s before advancing (both via a `Handler`-posted callback); a `退出` button in the quiz header calls `backToSetup()`. Fun features: `combo` LiveData (≥2 shows "🔥 已连对 N 题", resets on wrong answer, `bestCombo` tracked privately); a one-second `elapsedSeconds` ticker while in QUIZ (`timerCallback`, stopped by `stopTimer()`); correct answer plays a high beep (`ToneGenerator`) + 40ms vibration (`VIBRATE` permission, `VibratorManager` on API 31+) + scale-bounce on `text_question`, wrong answer plays a low beep + shake on `text_input` (double-pulse vibration when combo broke at ≥3). `TextCombo`/`text_quiz_timer` live between the quiz header row and the question. Do not re-add nav menus here.
+- Pure Kotlin problem generation in `arithmetic/` (`ArithmeticProblemGenerator`, `Operation`, `ArithmeticQuestion`) — keep testable on the host JVM, no Android deps. `RewardRules` (also pure Kotlin, unit-tested in `RewardRulesTest`) decides rewards: a 50/100-question *practice* round answered perfectly earns a crown. `RewardRules` also maps crown counts to a level via `levelIndexForCrowns` (thresholds `CROWN_LEVEL_THRESHOLDS` = 0/1/3/6/10 → 青铜/白银/黄金/钻石/王者 from the `crown_level_names` string-array) and `nextLevelCrowns`. `ResultComment` (pure Kotlin, unit-tested in `ResultCommentTest`, takes an injected `Random`) picks a playful 称号 + 鼓励语 tiered by score ratio; the result page shows the title line and stars.
+- Wrong answers persist to SQLite (`ArithmeticDbHelper` + `ArithmeticRepository`, no Room/KSP). Three tables: `wrong_problems` (v1), `rewards` (v2, created via `onUpgrade` when oldVersion < 2) and `records` (v3, one row per question count: best score / best time / best combo — created when oldVersion < 3). `insertReward` is called by the ViewModel when a crown is earned. Repository callbacks fire on a background executor: `startReviewRound` must `mainHandler.post { … }` back to the main thread before touching `LiveData` (setValue off-main-thread crashes 错题重练). At the end of a *practice* round (not 错题重练) the ViewModel calls `repository.updateRecord(count, score, seconds, bestCombo)`; the callback (posted to main thread) feeds `newRecord`, which shows "🎉 新纪录!" on the result page. Answering a wrong problem correctly during 错题重练 deletes that record via `repository.deleteWrong`. The 错题本 list (`ReviewFragment`) is a card-list — formula / 正确答案 / 你的答案 in aligned columns.
+- The 成就 page (`AchievementsFragment`/`AchievementsViewModel`) shows the crown count, maps it to a level via `RewardRules.levelIndexForCrowns` with a "next level needs N more crowns" line, and lists personal bests from `repository.fetchRecords` (`achievement_record_line`: count / full-score count / 用时 / 最高连击).
+- Responsive layout variants exist under `layout-w600dp/` and `layout-w1240dp/` (legacy template chrome). When editing a layout, update all variants consistently.

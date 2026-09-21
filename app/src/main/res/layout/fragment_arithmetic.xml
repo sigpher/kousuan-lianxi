@@ -1,0 +1,504 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ui.arithmetic.ArithmeticFragment">
+
+    <!-- ============ SETUP ============ -->
+    <LinearLayout
+        android:id="@+id/phase_setup"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/quiz_title"
+            android:textSize="34sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/quiz_subtitle"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/text_setup_welcome"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/text_setup_crown"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textColor="@color/color_gold"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:text="@string/choose_count"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/count_10"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="6dp"
+                android:layout_weight="1"
+                android:text="@string/count_10" />
+
+            <Button
+                android:id="@+id/count_20"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="6dp"
+                android:layout_weight="1"
+                android:text="@string/count_20" />
+
+            <Button
+                android:id="@+id/count_50"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="6dp"
+                android:layout_weight="1"
+                android:text="@string/count_50" />
+
+            <Button
+                android:id="@+id/count_100"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="6dp"
+                android:layout_weight="1"
+                android:text="@string/count_100" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_start"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="48dp"
+            android:text="@string/btn_start"
+            android:textSize="22sp" />
+
+        <Button
+            android:id="@+id/btn_review"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="@string/btn_review_wrong" />
+
+        <Button
+            android:id="@+id/btn_open_review"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="@string/btn_open_review" />
+
+        <Button
+            android:id="@+id/btn_open_achievements"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/btn_open_achievements" />
+    </LinearLayout>
+
+    <!-- ============ QUIZ ============ -->
+    <LinearLayout
+        android:id="@+id/phase_quiz"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/quiz_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/quiz_practice"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btn_exit"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="@string/btn_exit" />
+
+            <TextView
+                android:id="@+id/text_progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                tools:text="第 1/100 题" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/text_combo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:gravity="center"
+            android:textColor="@color/color_correct"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            tools:text="🔥 已连对 5 题！" />
+
+        <TextView
+            android:id="@+id/text_quiz_timer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:gravity="center"
+            android:textSize="15sp"
+            tools:text="⏱ 00:00" />
+
+        <TextView
+            android:id="@+id/text_question"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:textSize="52sp"
+            android:textStyle="bold"
+            tools:text="23×4=" />
+
+        <TextView
+            android:id="@+id/text_input"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:layout_marginTop="8dp"
+            android:background="@color/purple_200"
+            android:gravity="center"
+            android:text="@string/input_hint"
+            android:textColor="@color/black"
+            android:textSize="36sp" />
+
+        <TextView
+            android:id="@+id/text_feedback"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            tools:text="答对了！" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <!-- keypad -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/key_1"
+                    android:layout_width="0dp"
+                    android:layout_height="64dp"
+                    android:layout_margin="4dp"
+                    android:layout_weight="1"
+                    android:text="1"
+                    android:textSize="26sp" />
+
+                <Button
+                    android:id="@+id/key_2"
+                    android:layout_width="0dp"
+                    android:layout_height="64dp"
+                    android:layout_margin="4dp"
+                    android:layout_weight="1"
+                    android:text="2"
+                    android:textSize="26sp" />
+
+                <Button
+                    android:id="@+id/key_3"
+                    android:layout_width="0dp"
+                    android:layout_height="64dp"
+                    android:layout_margin="4dp"
+                    android:layout_weight="1"
+                    android:text="3"
+                    android:textSize="26sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/key_4"
+                    android:layout_width="0dp"
+                    android:layout_height="64dp"
+                    android:layout_margin="4dp"
+                    android:layout_weight="1"
+                    android:text="4"
+                    android:textSize="26sp" />
+
+                <Button
+                    android:id="@+id/key_5"
+                    android:layout_width="0dp"
+                    android:layout_height="64dp"
+                    android:layout_margin="4dp"
+                    android:layout_weight="1"
+                    android:text="5"
+                    android:textSize="26sp" />
+
+                <Button
+                    android:id="@+id/key_6"
+                    android:layout_width="0dp"
+                    android:layout_height="64dp"
+                    android:layout_margin="4dp"
+                    android:layout_weight="1"
+                    android:text="6"
+                    android:textSize="26sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/key_7"
+                    android:layout_width="0dp"
+                    android:layout_height="64dp"
+                    android:layout_margin="4dp"
+                    android:layout_weight="1"
+                    android:text="7"
+                    android:textSize="26sp" />
+
+                <Button
+                    android:id="@+id/key_8"
+                    android:layout_width="0dp"
+                    android:layout_height="64dp"
+                    android:layout_margin="4dp"
+                    android:layout_weight="1"
+                    android:text="8"
+                    android:textSize="26sp" />
+
+                <Button
+                    android:id="@+id/key_9"
+                    android:layout_width="0dp"
+                    android:layout_height="64dp"
+                    android:layout_margin="4dp"
+                    android:layout_weight="1"
+                    android:text="9"
+                    android:textSize="26sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/key_backspace"
+                    android:layout_width="0dp"
+                    android:layout_height="64dp"
+                    android:layout_margin="4dp"
+                    android:layout_weight="1"
+                    android:text="@string/key_backspace"
+                    android:textSize="20sp" />
+
+                <Button
+                    android:id="@+id/key_0"
+                    android:layout_width="0dp"
+                    android:layout_height="64dp"
+                    android:layout_margin="4dp"
+                    android:layout_weight="1"
+                    android:text="0"
+                    android:textSize="26sp" />
+
+                <Button
+                    android:id="@+id/key_ok"
+                    android:layout_width="0dp"
+                    android:layout_height="64dp"
+                    android:layout_margin="4dp"
+                    android:layout_weight="1"
+                    android:text="@string/key_ok"
+                    android:textSize="20sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- ============ RESULT ============ -->
+    <ScrollView
+        android:id="@+id/phase_result"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/result_title"
+                android:textSize="30sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/text_result_crown"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:text="@string/result_crown"
+                android:textColor="@color/color_gold"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/text_result_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:textColor="@color/color_gold"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                tools:text="称号：口算小状元" />
+
+            <TextView
+                android:id="@+id/text_result_score"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center"
+                android:textSize="24sp" />
+
+            <TextView
+                android:id="@+id/text_result_time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/text_result_avg"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/text_result_record"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:text="@string/result_record"
+                android:textColor="#FFE91E63"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/text_result_comment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/text_result_wrong_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/result_wrong_header"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/text_result_wrong"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textSize="16sp"
+                tools:text="23×4= 答案:92 你答:84" />
+
+            <Button
+                android:id="@+id/btn_redo_wrong"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/btn_review_wrong" />
+
+            <Button
+                android:id="@+id/btn_retry"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="@string/btn_retry" />
+
+            <Button
+                android:id="@+id/btn_back_setup"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="@string/btn_back_setup" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
