@@ -85,18 +85,6 @@ class ArithmeticFragment : Fragment() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        if (MusicPlayer.isEnabled(requireContext())) {
-            MusicPlayer.start(requireContext())
-        }
-    }
-
-    override fun onPause() {
-        MusicPlayer.pause()
-        super.onPause()
-    }
-
     private fun setupQuiz(viewModel: ArithmeticViewModel) {
         val digitButtons = listOf(
             binding.key1 to 1,

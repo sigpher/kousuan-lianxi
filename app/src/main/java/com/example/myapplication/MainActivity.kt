@@ -44,6 +44,18 @@ class MainActivity : AppCompatActivity() {
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (MusicPlayer.isEnabled(this)) {
+            MusicPlayer.start(this)
+        }
+    }
+
+    override fun onPause() {
+        MusicPlayer.pause()
+        super.onPause()
+    }
+
     override fun onDestroy() {
         MusicPlayer.destroy()
         super.onDestroy()
