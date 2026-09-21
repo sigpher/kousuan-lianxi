@@ -38,6 +38,17 @@
     <string name="btn_open_history">查看历史错题</string>
     <string name="btn_open_achievements">查看成就</string>
 
+    <string name="music_mode_label">播放模式</string>
+    <string name="music_mode_single">单曲循环</string>
+    <string name="music_mode_list">列表循环</string>
+    <string name="music_mode_shuffle">随机</string>
+    <string name="music_source_label">歌曲来源</string>
+    <string name="music_source_builtin">内置歌曲 · %1$d 首</string>
+    <string name="music_source_custom">📁 %1$s</string>
+    <string name="music_pick_dir">选择目录</string>
+    <string name="music_reset_dir">恢复内置</string>
+    <string name="music_dir_empty">所选目录没有音频文件，已使用内置歌曲</string>
+
     <string name="quiz_practice">口算练习</string>
     <string name="quiz_review">错题重练</string>
     <string name="btn_exit">退出</string>

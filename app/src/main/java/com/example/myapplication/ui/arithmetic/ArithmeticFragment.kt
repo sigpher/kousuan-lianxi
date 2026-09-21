@@ -1,21 +1,25 @@
 package com.example.myapplication.ui.arithmetic
 
+import android.animation.ObjectAnimator
+import android.animation.PropertyValuesHolder
 import android.content.res.ColorStateList
 import android.media.AudioManager
 import android.media.ToneGenerator
 import android.graphics.RenderEffect
 import android.graphics.Shader
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
-import android.animation.ObjectAnimator
-import android.animation.PropertyValuesHolder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.LinearInterpolator
+import android.widget.Button
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -24,6 +28,7 @@ import com.example.myapplication.R
 import com.example.myapplication.arithmetic.AccountRepository
 import com.example.myapplication.arithmetic.EnergyRules
 import com.example.myapplication.arithmetic.RewardRules
+import com.example.myapplication.audio.MusicMode
 import com.example.myapplication.audio.MusicPlayer
 import com.example.myapplication.databinding.FragmentArithmeticBinding
 import kotlin.random.Random
@@ -36,6 +41,28 @@ class ArithmeticFragment : Fragment() {
     private var toneGenerator: ToneGenerator? = null
     private lateinit var currentViewModel: ArithmeticViewModel
     private lateinit var accountRepository: AccountRepository
+    private var avatarSpinAnimator: ObjectAnimator? = null
+    private val modeDefaultColors = mutableMapOf<Int, ColorStateList>()
+    private val playStateListener: (Boolean) -> Unit = { playing ->
+        updateAvatarSpin(playing)
+    }
+
+    private val pickMusicDir = registerForActivityResult(
+        ActivityResultContracts.OpenDocumentTree()
+    ) { uri ->
+        if (uri != null) {
+            val ctx = _binding?.root?.context
+            if (ctx != null) {
+                MusicPlayer.setMusicDirectory(ctx, uri) { ok ->
+                    if (_binding == null) return@setMusicDirectory
+                    if (!ok) {
+                        Toast.makeText(ctx, R.string.music_dir_empty, Toast.LENGTH_SHORT).show()
+                    }
+                    refreshMusicSource()
+                }
+            }
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -91,7 +118,100 @@ class ArithmeticFragment : Fragment() {
             MusicPlayer.setEnabled(requireContext(), checked)
         }
 
+        setupMusicControls()
+
         binding.btnAccount.setOnClickListener { showAccountSheet() }
+    }
+
+    private fun setupMusicControls() {
+        val context = requireContext()
+        val modeMap = listOf(
+            binding.btnModeSingle to MusicMode.SINGLE_LOOP,
+            binding.btnModeList to MusicMode.LIST_LOOP,
+            binding.btnModeShuffle to MusicMode.SHUFFLE
+        )
+        modeMap.forEach { (button, _) ->
+            modeDefaultColors[button.id] = button.textColors
+        }
+        modeMap.forEach { (button, mode) ->
+            button.setOnClickListener {
+                MusicPlayer.setMode(context, mode)
+                applyModeHighlight(modeMap, mode)
+            }
+        }
+        applyModeHighlight(modeMap, MusicPlayer.getMode(context))
+
+        binding.btnPickMusicDir.setOnClickListener {
+            pickMusicDir.launch(null)
+        }
+        binding.btnResetMusicDir.setOnClickListener {
+            MusicPlayer.clearMusicDirectory(_binding?.root?.context ?: context)
+            refreshMusicSource()
+        }
+        refreshMusicSource()
+    }
+
+    private fun applyModeHighlight(
+        modeMap: List<Pair<Button, MusicMode>>,
+        selected: MusicMode
+    ) {
+        val purple = ContextCompat.getColor(requireContext(), R.color.purple_500)
+        val white = ContextCompat.getColor(requireContext(), R.color.white)
+        modeMap.forEach { (button, mode) ->
+            val active = mode == selected
+            button.isActivated = active
+            button.alpha = if (active) 1f else 0.6f
+            button.backgroundTintList =
+                if (active) ColorStateList.valueOf(purple) else null
+            button.setTextColor(
+                if (active) ColorStateList.valueOf(white) else modeDefaultColors[button.id]
+            )
+        }
+    }
+
+    private fun refreshMusicSource() {
+        if (_binding == null) return
+        val context = _binding!!.root.context
+        val dirUri = MusicPlayer.musicDirectoryUri(context)
+        if (dirUri == null) {
+            binding.textMusicSource.text =
+                getString(R.string.music_source_builtin, MusicPlayer.builtinTrackCount())
+            binding.btnResetMusicDir.visibility = View.GONE
+        } else {
+            val name = runCatching { Uri.parse(dirUri) }
+                .getOrNull()
+                ?.lastPathSegment
+                ?.takeIf { it.isNotBlank() }
+                ?: dirUri
+            binding.textMusicSource.text = getString(R.string.music_source_custom, name)
+            binding.btnResetMusicDir.visibility = View.VISIBLE
+        }
+    }
+
+    private fun updateAvatarSpin(playing: Boolean) {
+        if (_binding == null) return
+        if (playing) {
+            val anim = avatarSpinAnimator
+            if (anim == null) {
+                avatarSpinAnimator = ObjectAnimator.ofFloat(
+                    binding.imgCurrentAvatar,
+                    View.ROTATION,
+                    0f,
+                    360f
+                ).apply {
+                    duration = 6000
+                    repeatCount = ObjectAnimator.INFINITE
+                    interpolator = LinearInterpolator()
+                }
+                avatarSpinAnimator?.start()
+            } else if (!anim.isRunning) {
+                anim.start()
+            }
+        } else {
+            avatarSpinAnimator?.cancel()
+            avatarSpinAnimator = null
+            binding.imgCurrentAvatar.rotation = 0f
+        }
     }
 
     private fun showAccountSheet() {
@@ -111,7 +231,7 @@ class ArithmeticFragment : Fragment() {
                     binding.textCurrentUser.setText(R.string.account_guest)
                     binding.textCurrentUserHint.visibility = View.VISIBLE
                     binding.textCurrentUserHint.setText(R.string.account_guest_hint)
-                    AvatarUtil.load(binding.imgCurrentAvatar, null)
+                    AvatarUtil.loadDefault(binding.imgCurrentAvatar, _binding!!.root.context)
                 } else {
                     binding.textCurrentUser.text = user.username
                     binding.textCurrentUserHint.visibility = View.GONE
@@ -438,8 +558,21 @@ class ArithmeticFragment : Fragment() {
         return "%02d:%02d".format(m, s)
     }
 
+    override fun onStart() {
+        super.onStart()
+        MusicPlayer.addPlayStateListener(playStateListener)
+    }
+
+    override fun onStop() {
+        updateAvatarSpin(false)
+        MusicPlayer.removePlayStateListener(playStateListener)
+        super.onStop()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
+        avatarSpinAnimator?.cancel()
+        avatarSpinAnimator = null
         toneGenerator?.release()
         toneGenerator = null
         _binding = null
