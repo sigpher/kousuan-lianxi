@@ -41,7 +41,11 @@ class ArithmeticFragment : Fragment() {
         _binding = FragmentArithmeticBinding.inflate(inflater, container, false)
         val view = binding.root
         currentViewModel = ViewModelProvider(this).get(ArithmeticViewModel::class.java)
-        toneGenerator = ToneGenerator(AudioManager.STREAM_MUSIC, 80)
+        toneGenerator = try {
+            ToneGenerator(AudioManager.STREAM_MUSIC, 80)
+        } catch (e: RuntimeException) {
+            null
+        }
         setupSetup(currentViewModel)
         setupQuiz(currentViewModel)
         setupResult(currentViewModel)

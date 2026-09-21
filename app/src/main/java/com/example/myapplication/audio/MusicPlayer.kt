@@ -43,7 +43,13 @@ object MusicPlayer {
         appContext = context.applicationContext
         val p = player
         if (p != null) {
-            if (!p.isPlaying) p.start()
+            if (!p.isPlaying) {
+                try {
+                    p.start()
+                } catch (e: IllegalStateException) {
+                    player = null
+                }
+            }
             return
         }
         currentIndex = Random.nextInt(trackIds.size)
@@ -51,7 +57,9 @@ object MusicPlayer {
     }
 
     fun pause() {
-        player?.let { if (it.isPlaying) it.pause() }
+        player?.let {
+            if (it.isPlaying) it.pause()
+        }
     }
 
     fun destroy() {
@@ -63,23 +71,28 @@ object MusicPlayer {
     private fun playTrack(index: Int) {
         val ctx = appContext ?: return
         val mp = MediaPlayer()
-        mp.setAudioAttributes(
-            AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_MEDIA)
-                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                .build()
-        )
-        mp.setDataSource(
-            ctx,
-            Uri.parse("android.resource://${ctx.packageName}/${trackIds[index]}")
-        )
-        mp.setOnCompletionListener {
-            currentIndex = (currentIndex + 1) % trackIds.size
-            playTrack(currentIndex)
+        try {
+            mp.setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                    .build()
+            )
+            mp.setDataSource(
+                ctx,
+                Uri.parse("android.resource://${ctx.packageName}/${trackIds[index]}")
+            )
+            mp.setOnCompletionListener {
+                currentIndex = (currentIndex + 1) % trackIds.size
+                playTrack(currentIndex)
+            }
+            mp.prepare()
+            player?.release()
+            player = mp
+            mp.start()
+        } catch (e: Exception) {
+            mp.release()
+            player = null
         }
-        mp.prepare()
-        player?.release()
-        player = mp
-        mp.start()
     }
 }

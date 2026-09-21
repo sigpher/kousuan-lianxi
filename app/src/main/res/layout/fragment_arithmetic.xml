@@ -79,11 +79,12 @@
                         android:textSize="15sp"
                         android:textStyle="bold" />
 
-                    <com.google.android.material.materialswitch.MaterialSwitch
+                    <CheckBox
                         android:id="@+id/switch_music"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="12dp" />
+                        android:layout_marginStart="12dp"
+                        android:buttonTint="#FFFFFF" />
                 </LinearLayout>
             </LinearLayout>
 
