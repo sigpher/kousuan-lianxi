@@ -1,53 +1,43 @@
 package com.example.myapplication.arithmetic
 
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class RewardRulesTest {
 
     @Test
-    fun awardsCrownForPerfect50() {
-        assertTrue(RewardRules.awardsCrown(plannedCount = 50, score = 50, review = false))
+    fun rewardForPerfect10IsYellowFlower() {
+        assertEquals(RewardRules.YELLOW_FLOWER, RewardRules.rewardForRound(10, 10, review = false))
     }
 
     @Test
-    fun awardsCrownForPerfect100() {
-        assertTrue(RewardRules.awardsCrown(plannedCount = 100, score = 100, review = false))
+    fun rewardForPerfect20IsRedHeart() {
+        assertEquals(RewardRules.RED_HEART, RewardRules.rewardForRound(20, 20, review = false))
     }
 
     @Test
-    fun noCrownForSmallCounts() {
-        assertFalse(RewardRules.awardsCrown(plannedCount = 10, score = 10, review = false))
-        assertFalse(RewardRules.awardsCrown(plannedCount = 20, score = 20, review = false))
+    fun rewardForPerfect50IsSapphire() {
+        assertEquals(RewardRules.SAPPHIRE, RewardRules.rewardForRound(50, 50, review = false))
     }
 
     @Test
-    fun noCrownWhenNotPerfect() {
-        assertFalse(RewardRules.awardsCrown(plannedCount = 50, score = 49, review = false))
-        assertFalse(RewardRules.awardsCrown(plannedCount = 100, score = 99, review = false))
+    fun rewardForPerfect100IsCrown() {
+        assertEquals(RewardRules.CROWN, RewardRules.rewardForRound(100, 100, review = false))
     }
 
     @Test
-    fun noCrownForReviewRounds() {
-        assertFalse(RewardRules.awardsCrown(plannedCount = 50, score = 50, review = true))
-        assertFalse(RewardRules.awardsCrown(plannedCount = 100, score = 100, review = true))
+    fun noRewardWhenNotPerfect() {
+        assertNull(RewardRules.rewardForRound(50, 49, review = false))
+        assertNull(RewardRules.rewardForRound(100, 99, review = false))
+        assertNull(RewardRules.rewardForRound(30, 30, review = false))
     }
 
     @Test
-    fun sapphireRequiresFullyCorrectReviewOfFiftyOrHundred() {
-        assertTrue(RewardRules.awardsSapphire(plannedCount = 50, score = 5, total = 5, review = true))
-        assertTrue(RewardRules.awardsSapphire(plannedCount = 100, score = 3, total = 3, review = true))
-    }
-
-    @Test
-    fun sapphireDeniedWhenReviewNotPerfect() {
-        assertFalse(RewardRules.awardsSapphire(plannedCount = 50, score = 4, total = 5, review = true))
-        assertFalse(RewardRules.awardsSapphire(plannedCount = 50, score = 5, total = 5, review = false))
-        assertFalse(RewardRules.awardsSapphire(plannedCount = 20, score = 4, total = 4, review = true))
-        assertFalse(RewardRules.awardsSapphire(plannedCount = 50, score = 0, total = 0, review = true))
+    fun noRewardForReviewRounds() {
+        assertNull(RewardRules.rewardForRound(50, 50, review = true))
+        assertNull(RewardRules.rewardForRound(100, 100, review = true))
+        assertNull(RewardRules.rewardForRound(10, 10, review = true))
     }
 
     @Test

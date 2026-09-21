@@ -18,6 +18,12 @@
         tools:layout="@layout/fragment_review" />
 
     <fragment
+        android:id="@+id/nav_history"
+        android:name="com.example.myapplication.ui.arithmetic.HistoryFragment"
+        android:label="@string/history_title"
+        tools:layout="@layout/fragment_history" />
+
+    <fragment
         android:id="@+id/nav_achievements"
         android:name="com.example.myapplication.ui.arithmetic.AchievementsFragment"
         android:label="@string/achievement_title"

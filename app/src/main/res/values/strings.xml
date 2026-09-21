@@ -5,8 +5,10 @@
 
     <string name="quiz_title">口算练习</string>
     <string name="quiz_subtitle">加减乘除，混合出题</string>
-    <string name="setup_crown_chip">👑 已获得皇冠 %1$d 个</string>
+    <string name="setup_flower_chip">🌸 已获得小黄花 %1$d 朵</string>
+    <string name="setup_heart_chip">❤️ 已获得红心 %1$d 个</string>
     <string name="setup_gem_chip">💎 已获得蓝宝石 %1$d 个</string>
+    <string name="setup_crown_chip">👑 已获得皇冠 %1$d 个</string>
     <string-array name="setup_welcome">
         <item>准备好了吗？开始今天的口算挑战吧！</item>
         <item>动动小脑瓜，争做口算小状元！</item>
@@ -21,7 +23,8 @@
     <string name="count_100">100 题</string>
     <string name="btn_start">开始练习</string>
     <string name="btn_review_wrong">错题重练</string>
-    <string name="btn_open_review">查看错题本</string>
+    <string name="btn_open_review">查看错题</string>
+    <string name="btn_open_history">查看历史错题</string>
     <string name="btn_open_achievements">查看成就</string>
 
     <string name="quiz_practice">口算练习</string>
@@ -36,9 +39,11 @@
     <string name="key_ok">确定</string>
 
     <string name="result_title">本轮成绩</string>
-    <string name="result_crown">👑 全对奖励：获得一枚皇冠！</string>
-    <string name="result_sapphire">💎 错题全对，获得一颗蓝宝石！</string>
-    <string name="result_redo">错题全对即可获得蓝宝石 💎</string>
+    <string name="result_reward_yellow_flower">🌸 全对奖励：获得一朵小黄花！</string>
+    <string name="result_reward_red_heart">❤️ 全对奖励：获得一颗红心！</string>
+    <string name="result_reward_sapphire">💎 全对奖励：获得一颗蓝宝石！</string>
+    <string name="result_reward_crown">👑 全对奖励：获得一枚皇冠！</string>
+    <string name="result_redo">重做本轮错题，做对即可从「查看错题」中删除</string>
     <string name="btn_redo_result">进入错题重做</string>
     <string name="result_score">答对 %1$d / %2$d 题</string>
     <string name="result_time">用时 %1$s</string>
@@ -51,19 +56,25 @@
     <string name="btn_retry">再练一轮</string>
     <string name="btn_back_setup">返回设置</string>
 
-    <string name="review_title">错题本</string>
+    <string name="review_title">查看错题</string>
     <string name="review_empty">暂无错题记录</string>
     <string name="review_col_formula">算式</string>
     <string name="review_col_correct">正确答案</string>
     <string name="review_col_yours">你的答案</string>
 
+    <string name="history_title">历史错题</string>
+    <string name="history_subtitle">无需删除，仅作记录查询</string>
+    <string name="history_empty">还没有错题历史，先去练习吧</string>
+
     <string name="achievement_title">成就</string>
-    <string name="achievement_crown_count">获得皇冠：%1$d 个</string>
+    <string name="achievement_yellow_flower_count">获得小黄花：%1$d 朵</string>
+    <string name="achievement_red_heart_count">获得红心：%1$d 个</string>
     <string name="achievement_sapphire_count">获得蓝宝石：%1$d 个</string>
+    <string name="achievement_crown_count">获得皇冠：%1$d 个</string>
     <string name="achievement_level">当前等级：%1$s</string>
     <string name="achievement_next_level">再获 %1$d 个皇冠，升到 %2$s</string>
     <string name="achievement_max_level">已是最高等级，太厉害了！</string>
-    <string name="achievement_empty">还没有获得皇冠，加油完成 50 题或 100 题全对吧！</string>
+    <string name="achievement_empty">还没有获得皇冠，加油完成任意一轮并全对吧！</string>
     <string name="achievement_records_title">个人最佳纪录</string>
     <string name="achievement_record_line">%1$d 题：全对 %2$d 题 · 用时 %3$s · 最高连击 %4$d</string>
     <string name="achievement_records_empty">还没有纪录，快去创造属于你的最佳吧！</string>

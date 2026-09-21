@@ -42,6 +42,14 @@ class AchievementsFragment : Fragment() {
                 )
             }
         }
+        viewModel.yellowFlowerCount.observe(viewLifecycleOwner) { count ->
+            binding.textYellowFlowerCount.text =
+                getString(R.string.achievement_yellow_flower_count, count)
+        }
+        viewModel.redHeartCount.observe(viewLifecycleOwner) { count ->
+            binding.textRedHeartCount.text =
+                getString(R.string.achievement_red_heart_count, count)
+        }
         viewModel.sapphireCount.observe(viewLifecycleOwner) { count ->
             binding.textSapphireCount.text =
                 getString(R.string.achievement_sapphire_count, count)
@@ -59,8 +67,7 @@ class AchievementsFragment : Fragment() {
                 )
             }
         }
-        viewModel.loadCrownCount()
-        viewModel.loadSapphireCount()
+        viewModel.loadRewardCounts()
         viewModel.loadRecords()
         return view
     }

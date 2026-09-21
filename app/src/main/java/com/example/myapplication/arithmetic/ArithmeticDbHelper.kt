@@ -8,18 +8,8 @@ class ArithmeticDbHelper(context: Context) :
     SQLiteOpenHelper(context, "arithmetic.db", null, DATABASE_VERSION) {
 
     override fun onCreate(db: SQLiteDatabase) {
-        db.execSQL(
-            """
-            CREATE TABLE $TABLE (
-                $OP_A INTEGER NOT NULL,
-                $OP_B INTEGER NOT NULL,
-                $OPERATOR TEXT NOT NULL,
-                $CORRECT INTEGER NOT NULL,
-                $USER_ANSWER TEXT NOT NULL,
-                $CREATED_AT INTEGER NOT NULL
-            )
-            """.trimIndent()
-        )
+        db.execSQL(CREATE_WRONG_PROBLEMS)
+        db.execSQL(CREATE_HISTORY)
         db.execSQL(CREATE_REWARDS)
         db.execSQL(CREATE_RECORDS)
     }
@@ -27,12 +17,14 @@ class ArithmeticDbHelper(context: Context) :
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         if (oldVersion < 2) db.execSQL(CREATE_REWARDS)
         if (oldVersion < 3) db.execSQL(CREATE_RECORDS)
+        if (oldVersion < 4) db.execSQL(CREATE_HISTORY)
     }
 
     companion object {
-        private const val DATABASE_VERSION = 3
+        private const val DATABASE_VERSION = 4
 
         const val TABLE = "wrong_problems"
+        const val HISTORY_TABLE = "wrong_history"
         const val OP_A = "opa"
         const val OP_B = "opb"
         const val OPERATOR = "opr"
@@ -51,6 +43,18 @@ class ArithmeticDbHelper(context: Context) :
         const val RECORD_BEST_TIME = "best_time_seconds"
         const val RECORD_BEST_COMBO = "best_combo"
         const val RECORD_UPDATED_AT = "updated_at"
+
+        private const val WRONG_COLUMNS =
+            "$OP_A INTEGER NOT NULL, " +
+                "$OP_B INTEGER NOT NULL, " +
+                "$OPERATOR TEXT NOT NULL, " +
+                "$CORRECT INTEGER NOT NULL, " +
+                "$USER_ANSWER TEXT NOT NULL, " +
+                "$CREATED_AT INTEGER NOT NULL"
+
+        private const val CREATE_WRONG_PROBLEMS = "CREATE TABLE $TABLE ($WRONG_COLUMNS)"
+
+        private const val CREATE_HISTORY = "CREATE TABLE $HISTORY_TABLE ($WRONG_COLUMNS)"
 
         private const val CREATE_REWARDS =
             "CREATE TABLE $REWARDS_TABLE (" +

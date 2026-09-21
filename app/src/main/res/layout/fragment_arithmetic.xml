@@ -41,11 +41,20 @@
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/text_setup_crown"
+            android:id="@+id/text_setup_yellow_flower"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:textColor="@color/color_gold"
+            android:textColor="@color/color_yellow_flower"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/text_setup_heart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/color_heart"
             android:textSize="16sp"
             android:textStyle="bold" />
 
@@ -55,6 +64,15 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:textColor="@color/color_sapphire"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/text_setup_crown"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/color_gold"
             android:textSize="16sp"
             android:textStyle="bold" />
 
@@ -112,15 +130,15 @@
 
         <Button
             android:id="@+id/btn_start"
+            style="@style/Button.SetupNav"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="48dp"
-            android:text="@string/btn_start"
-            android:textSize="22sp" />
+            android:layout_marginTop="36dp"
+            android:text="@string/btn_start" />
 
         <Button
             android:id="@+id/btn_review"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            style="@style/Button.SetupNav"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
@@ -128,18 +146,26 @@
 
         <Button
             android:id="@+id/btn_open_review"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
+            style="@style/Button.SetupNav"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:text="@string/btn_open_review" />
 
         <Button
-            android:id="@+id/btn_open_achievements"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:id="@+id/btn_open_history"
+            style="@style/Button.SetupNav"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="12dp"
+            android:text="@string/btn_open_history" />
+
+        <Button
+            android:id="@+id/btn_open_achievements"
+            style="@style/Button.SetupNav"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
             android:text="@string/btn_open_achievements" />
     </LinearLayout>
 
@@ -411,28 +437,16 @@
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/text_result_crown"
+                android:id="@+id/text_result_reward"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:gravity="center"
-                android:text="@string/result_crown"
                 android:textColor="@color/color_gold"
                 android:textSize="24sp"
                 android:textStyle="bold"
-                android:visibility="gone" />
-
-            <TextView
-                android:id="@+id/text_result_sapphire"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="center"
-                android:text="@string/result_sapphire"
-                android:textColor="@color/color_sapphire"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:visibility="gone" />
+                android:visibility="gone"
+                tools:text="💎 全对奖励：获得一颗蓝宝石！" />
 
             <TextView
                 android:id="@+id/text_result_title"

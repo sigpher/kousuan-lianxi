@@ -64,11 +64,8 @@ class ArithmeticViewModel(application: Application) : AndroidViewModel(applicati
     private val _elapsedSeconds = MutableLiveData(0L)
     val elapsedSeconds: LiveData<Long> = _elapsedSeconds
 
-    private val _crownEarned = MutableLiveData(false)
-    val crownEarned: LiveData<Boolean> = _crownEarned
-
-    private val _sapphireEarned = MutableLiveData(false)
-    val sapphireEarned: LiveData<Boolean> = _sapphireEarned
+    private val _rewardEarned = MutableLiveData<String?>(null)
+    val rewardEarned: LiveData<String?> = _rewardEarned
 
     private val _canRedo = MutableLiveData(false)
     val canRedo: LiveData<Boolean> = _canRedo
@@ -82,11 +79,17 @@ class ArithmeticViewModel(application: Application) : AndroidViewModel(applicati
     private val _newRecord = MutableLiveData(false)
     val newRecord: LiveData<Boolean> = _newRecord
 
-    private val _crownCount = MutableLiveData(0)
-    val crownCount: LiveData<Int> = _crownCount
+    private val _yellowFlowerCount = MutableLiveData(0)
+    val yellowFlowerCount: LiveData<Int> = _yellowFlowerCount
+
+    private val _redHeartCount = MutableLiveData(0)
+    val redHeartCount: LiveData<Int> = _redHeartCount
 
     private val _sapphireCount = MutableLiveData(0)
     val sapphireCount: LiveData<Int> = _sapphireCount
+
+    private val _crownCount = MutableLiveData(0)
+    val crownCount: LiveData<Int> = _crownCount
 
     private val _message = MutableLiveData<String?>(null)
     val message: LiveData<String?> = _message
@@ -101,15 +104,18 @@ class ArithmeticViewModel(application: Application) : AndroidViewModel(applicati
         _questionCount.value = count
     }
 
-    fun refreshCrownCount() {
-        repository.countRewards(RewardRules.CROWN) { count ->
-            mainHandler.post { _crownCount.value = count }
+    fun refreshRewardCounts() {
+        repository.countRewards(RewardRules.YELLOW_FLOWER) { count ->
+            mainHandler.post { _yellowFlowerCount.value = count }
         }
-    }
-
-    fun refreshSapphireCount() {
+        repository.countRewards(RewardRules.RED_HEART) { count ->
+            mainHandler.post { _redHeartCount.value = count }
+        }
         repository.countRewards(RewardRules.SAPPHIRE) { count ->
             mainHandler.post { _sapphireCount.value = count }
+        }
+        repository.countRewards(RewardRules.CROWN) { count ->
+            mainHandler.post { _crownCount.value = count }
         }
     }
 
@@ -194,23 +200,20 @@ class ArithmeticViewModel(application: Application) : AndroidViewModel(applicati
             val plannedCount = _questionCount.value ?: total
             val score = _score.value ?: 0
             val wrongCount = _wrongProblems.value.orEmpty().size
-            val earnedCrown = RewardRules.awardsCrown(
-                plannedCount = plannedCount,
-                score = score,
-                review = review
-            )
-            _crownEarned.value = earnedCrown
-            if (earnedCrown) {
-                repository.insertReward(RewardRules.CROWN)
-                _message.value = "太棒了！奖励一枚皇冠 👑"
-            }
-            if (RewardRules.awardsSapphire(plannedCount, score, total, review) && redoUsed) {
-                repository.insertReward(RewardRules.SAPPHIRE)
-                _sapphireEarned.value = true
-                _message.value = "太棒了！错题全部改正，奖励一颗蓝宝石 💎"
+            val reward = RewardRules.rewardForRound(plannedCount, score, review)
+            _rewardEarned.value = reward
+            if (reward != null) {
+                repository.insertReward(reward)
+                _message.value = when (reward) {
+                    RewardRules.YELLOW_FLOWER -> "太棒了！奖励一朵小黄花 🌸"
+                    RewardRules.RED_HEART -> "太棒了！奖励一颗红心 ❤️"
+                    RewardRules.SAPPHIRE -> "太棒了！奖励一颗蓝宝石 💎"
+                    RewardRules.CROWN -> "太棒了！奖励一枚皇冠 👑"
+                    else -> "太棒了！获得奖励！"
+                }
             }
             _canRedo.value = !review && redoUsed.not() &&
-                plannedCount in RewardRules.SAPPHIRE_QUESTION_COUNTS && wrongCount > 0
+                plannedCount in RewardRules.REDO_QUESTION_COUNTS && wrongCount > 0
             if (!review && total > 0) {
                 val seconds = (_elapsedSeconds.value ?: 0L).toInt()
                 repository.updateRecord(total, score, seconds, bestCombo) { improved ->
@@ -251,8 +254,7 @@ class ArithmeticViewModel(application: Application) : AndroidViewModel(applicati
         _score.value = 0
         _feedback.value = null
         _wrongProblems.value = emptyList()
-        _crownEarned.value = false
-        _sapphireEarned.value = false
+        _rewardEarned.value = null
         _canRedo.value = false
         redoUsed = false
         _combo.value = 0

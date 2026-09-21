@@ -40,8 +40,8 @@ class ArithmeticProblemGenerator(
     }
 
     private fun mul(): ArithmeticQuestion {
-        val a = if (random.nextInt(10) < 3) random.nextInt(11, 100) else random.nextInt(1, 10)
-        val b = if (a >= 10) random.nextInt(2, 10) else random.nextInt(1, 10)
+        val a = random.nextInt(1, 21)
+        val b = random.nextInt(1, 11)
         return ArithmeticQuestion(Operation.MUL, a, b, a * b)
     }
 

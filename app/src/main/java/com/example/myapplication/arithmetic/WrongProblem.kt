@@ -14,16 +14,23 @@ object ReviewSelector {
 }
 
 object RewardRules {
-    const val CROWN = "crown"
+    const val YELLOW_FLOWER = "yellow_flower"
+    const val RED_HEART = "red_heart"
     const val SAPPHIRE = "sapphire"
-    val CROWN_QUESTION_COUNTS: Set<Int> = setOf(50, 100)
-    val SAPPHIRE_QUESTION_COUNTS: Set<Int> = setOf(50, 100)
+    const val CROWN = "crown"
 
-    fun awardsCrown(plannedCount: Int, score: Int, review: Boolean): Boolean =
-        !review && plannedCount in CROWN_QUESTION_COUNTS && score == plannedCount
+    val REWARD_QUESTION_COUNTS: Map<Int, String> = mapOf(
+        10 to YELLOW_FLOWER,
+        20 to RED_HEART,
+        50 to SAPPHIRE,
+        100 to CROWN
+    )
+    val REDO_QUESTION_COUNTS: Set<Int> = setOf(50, 100)
 
-    fun awardsSapphire(plannedCount: Int, score: Int, total: Int, review: Boolean): Boolean =
-        review && plannedCount in SAPPHIRE_QUESTION_COUNTS && total > 0 && score == total
+    fun rewardForRound(plannedCount: Int, score: Int, review: Boolean): String? {
+        if (review) return null
+        return REWARD_QUESTION_COUNTS[plannedCount]?.takeIf { score == plannedCount }
+    }
 
     val CROWN_LEVEL_THRESHOLDS: List<Int> = listOf(0, 1, 3, 6, 10)
 

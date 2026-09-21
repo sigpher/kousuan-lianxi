@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.content.Context
 import com.example.myapplication.arithmetic.ArithmeticDbHelper.Companion.CORRECT
 import com.example.myapplication.arithmetic.ArithmeticDbHelper.Companion.CREATED_AT
+import com.example.myapplication.arithmetic.ArithmeticDbHelper.Companion.HISTORY_TABLE
 import com.example.myapplication.arithmetic.ArithmeticDbHelper.Companion.OP_A
 import com.example.myapplication.arithmetic.ArithmeticDbHelper.Companion.OP_B
 import com.example.myapplication.arithmetic.ArithmeticDbHelper.Companion.OPERATOR
@@ -45,6 +46,7 @@ class ArithmeticRepository(context: Context) {
                 put(CREATED_AT, System.currentTimeMillis())
             }
             db.insert(TABLE, null, values)
+            db.insert(HISTORY_TABLE, null, values)
         }
     }
 
@@ -169,25 +171,37 @@ class ArithmeticRepository(context: Context) {
 
     fun fetchWrong(callback: (List<WrongProblem>) -> Unit) {
         executor.execute {
-            val db = dbHelper.readableDatabase
-            val problems = mutableListOf<WrongProblem>()
-            db.query(TABLE, null, null, null, null, null, "$CREATED_AT DESC").use { cursor ->
-                while (cursor.moveToNext()) {
-                    problems += WrongProblem(
-                        question = ArithmeticQuestion(
-                            operator = Operation.valueOf(
-                                cursor.getString(cursor.getColumnIndexOrThrow(OPERATOR))
-                            ),
-                            operandA = cursor.getInt(cursor.getColumnIndexOrThrow(OP_A)),
-                            operandB = cursor.getInt(cursor.getColumnIndexOrThrow(OP_B)),
-                            answer = cursor.getInt(cursor.getColumnIndexOrThrow(CORRECT))
-                        ),
-                        userAnswer = cursor.getString(cursor.getColumnIndexOrThrow(USER_ANSWER)),
-                        createdAt = cursor.getLong(cursor.getColumnIndexOrThrow(CREATED_AT))
-                    )
-                }
-            }
+            val problems = readProblems(TABLE)
             callback(problems)
         }
+    }
+
+    fun fetchHistory(callback: (List<WrongProblem>) -> Unit) {
+        executor.execute {
+            val problems = readProblems(HISTORY_TABLE)
+            callback(problems)
+        }
+    }
+
+    private fun readProblems(table: String): List<WrongProblem> {
+        val db = dbHelper.readableDatabase
+        val problems = mutableListOf<WrongProblem>()
+        db.query(table, null, null, null, null, null, "$CREATED_AT DESC").use { cursor ->
+            while (cursor.moveToNext()) {
+                problems += WrongProblem(
+                    question = ArithmeticQuestion(
+                        operator = Operation.valueOf(
+                            cursor.getString(cursor.getColumnIndexOrThrow(OPERATOR))
+                        ),
+                        operandA = cursor.getInt(cursor.getColumnIndexOrThrow(OP_A)),
+                        operandB = cursor.getInt(cursor.getColumnIndexOrThrow(OP_B)),
+                        answer = cursor.getInt(cursor.getColumnIndexOrThrow(CORRECT))
+                    ),
+                    userAnswer = cursor.getString(cursor.getColumnIndexOrThrow(USER_ANSWER)),
+                    createdAt = cursor.getLong(cursor.getColumnIndexOrThrow(CREATED_AT))
+                )
+            }
+        }
+        return problems
     }
 }

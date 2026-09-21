@@ -20,6 +20,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import com.example.myapplication.R
 import com.example.myapplication.arithmetic.EnergyRules
+import com.example.myapplication.arithmetic.RewardRules
 import com.example.myapplication.databinding.FragmentArithmeticBinding
 import kotlin.random.Random
 
@@ -52,6 +53,9 @@ class ArithmeticFragment : Fragment() {
         binding.btnReview.setOnClickListener { viewModel.startReviewRound() }
         binding.btnOpenReview.setOnClickListener {
             requireView().findNavController().navigate(R.id.nav_review)
+        }
+        binding.btnOpenHistory.setOnClickListener {
+            requireView().findNavController().navigate(R.id.nav_history)
         }
         binding.btnOpenAchievements.setOnClickListener {
             requireView().findNavController().navigate(R.id.nav_achievements)
@@ -107,8 +111,7 @@ class ArithmeticFragment : Fragment() {
             binding.phaseResult.visibility =
                 if (phase == QuizPhase.RESULT) View.VISIBLE else View.GONE
             if (phase == QuizPhase.SETUP) {
-                viewModel.refreshCrownCount()
-                viewModel.refreshSapphireCount()
+                viewModel.refreshRewardCounts()
             }
             if (phase == QuizPhase.RESULT) renderResult(viewModel)
         }
@@ -166,12 +169,21 @@ class ArithmeticFragment : Fragment() {
             binding.textQuizTimer.text = getString(R.string.quiz_timer, formatTime(seconds))
         }
 
-        viewModel.crownCount.observe(viewLifecycleOwner) { count ->
-            binding.textSetupCrown.text = getString(R.string.setup_crown_chip, count)
+        viewModel.yellowFlowerCount.observe(viewLifecycleOwner) { count ->
+            binding.textSetupYellowFlower.text =
+                getString(R.string.setup_flower_chip, count)
+        }
+
+        viewModel.redHeartCount.observe(viewLifecycleOwner) { count ->
+            binding.textSetupHeart.text = getString(R.string.setup_heart_chip, count)
         }
 
         viewModel.sapphireCount.observe(viewLifecycleOwner) { count ->
             binding.textSetupGem.text = getString(R.string.setup_gem_chip, count)
+        }
+
+        viewModel.crownCount.observe(viewLifecycleOwner) { count ->
+            binding.textSetupCrown.text = getString(R.string.setup_crown_chip, count)
         }
 
         viewModel.questionCount.observe(viewLifecycleOwner) { selected ->
@@ -211,10 +223,20 @@ class ArithmeticFragment : Fragment() {
 
     private fun renderResult(viewModel: ArithmeticViewModel) {
         val total = viewModel.questionCount()
-        val earnedCrown = viewModel.crownEarned.value == true
-        binding.textResultCrown.visibility = if (earnedCrown) View.VISIBLE else View.GONE
-        val earnedSapphire = viewModel.sapphireEarned.value == true
-        binding.textResultSapphire.visibility = if (earnedSapphire) View.VISIBLE else View.GONE
+        val reward = viewModel.rewardEarned.value
+        if (reward != null) {
+            binding.textResultReward.visibility = View.VISIBLE
+            binding.textResultReward.text = when (reward) {
+                RewardRules.YELLOW_FLOWER -> getString(R.string.result_reward_yellow_flower)
+                RewardRules.RED_HEART -> getString(R.string.result_reward_red_heart)
+                RewardRules.SAPPHIRE -> getString(R.string.result_reward_sapphire)
+                RewardRules.CROWN -> getString(R.string.result_reward_crown)
+                else -> ""
+            }
+            binding.textResultReward.setTextColor(rewardColor(reward))
+        } else {
+            binding.textResultReward.visibility = View.GONE
+        }
         binding.btnRedoWrong.visibility =
             if (viewModel.canRedo.value == true) View.VISIBLE else View.GONE
         binding.textResultScore.text =
@@ -305,6 +327,17 @@ class ArithmeticFragment : Fragment() {
             @Suppress("DEPRECATION")
             v.vibrate(pattern, -1)
         }
+    }
+
+    private fun rewardColor(reward: String?): Int = when (reward) {
+        RewardRules.RED_HEART ->
+            ContextCompat.getColor(requireContext(), R.color.color_heart)
+        RewardRules.YELLOW_FLOWER ->
+            ContextCompat.getColor(requireContext(), R.color.color_yellow_flower)
+        RewardRules.SAPPHIRE ->
+            ContextCompat.getColor(requireContext(), R.color.color_sapphire)
+        else ->
+            ContextCompat.getColor(requireContext(), R.color.color_gold)
     }
 
     private fun formatTime(seconds: Long): String {

@@ -69,10 +69,32 @@
             android:visibility="gone" />
 
         <TextView
-            android:id="@+id/text_sapphire_count"
+            android:id="@+id/text_yellow_flower_count"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:textColor="@color/color_yellow_flower"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            tools:text="获得小黄花：0 朵" />
+
+        <TextView
+            android:id="@+id/text_red_heart_count"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:textColor="@color/color_heart"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            tools:text="获得红心：0 个" />
+
+        <TextView
+            android:id="@+id/text_sapphire_count"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:gravity="center"
             android:textColor="@color/color_sapphire"
             android:textSize="18sp"

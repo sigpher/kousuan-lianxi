@@ -35,13 +35,12 @@ class ArithmeticProblemGeneratorTest {
     }
 
     @Test
-    fun multiplication_isCorrectAndWithinRange() {
+    fun multiplication_isCorrectAndRanges() {
         val list = generator.generate(Operation.MUL, 1000)
         for (q in list) {
             assertCorrect(q)
-            assertTrue(q.operandA >= 1)
-            assertTrue(q.operandB in 1..9)
-            assertTrue("积 $q 超出 999", q.answer <= 999)
+            assertTrue("乘数 %o 应为 1..20", q.operandA in 1..20)
+            assertTrue("乘数 %o 应为 1..10", q.operandB in 1..10)
         }
     }
 

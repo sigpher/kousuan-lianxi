@@ -11,4 +11,6 @@
     <color name="color_wrong">#FFC62828</color>
     <color name="color_gold">#FFD700</color>
     <color name="color_sapphire">#FF1E88E5</color>
+    <color name="color_heart">#FFE91E63</color>
+    <color name="color_yellow_flower">#FFF9A825</color>
 </resources>
