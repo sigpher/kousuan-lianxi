@@ -9,6 +9,11 @@
         <item name="colorSecondary">@color/teal_200</item>
         <item name="colorSecondaryVariant">@color/teal_700</item>
         <item name="colorOnSecondary">@color/black</item>
+        <!-- Surface / background. -->
+        <item name="colorSurface">@color/color_surface</item>
+        <item name="android:windowBackground">@color/color_background</item>
+        <item name="android:textColorPrimary">@color/color_on_surface</item>
+        <item name="android:textColorSecondary">@color/color_text_secondary</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
@@ -23,9 +28,27 @@
 
     <style name="Theme.MyApplication.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="ShapeAppearance.App.Button" parent="ShapeAppearance.MaterialComponents.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+    </style>
+
+    <style name="ShapeAppearance.App.Button.Small" parent="ShapeAppearance.MaterialComponents.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">12dp</item>
+    </style>
+
     <style name="Button.SetupNav" parent="Widget.MaterialComponents.Button">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_height">52dp</item>
         <item name="android:textSize">18sp</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.App.Button</item>
+    </style>
+
+    <style name="Button.CountOutlined" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">52dp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.App.Button.Small</item>
     </style>
 </resources>

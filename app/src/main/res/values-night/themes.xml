@@ -9,6 +9,11 @@
         <item name="colorSecondary">@color/teal_200</item>
         <item name="colorSecondaryVariant">@color/teal_200</item>
         <item name="colorOnSecondary">@color/black</item>
+        <!-- Surface / background. -->
+        <item name="colorSurface">@color/color_surface</item>
+        <item name="android:windowBackground">@color/color_background</item>
+        <item name="android:textColorPrimary">@color/color_on_surface</item>
+        <item name="android:textColorSecondary">@color/color_text_secondary</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->

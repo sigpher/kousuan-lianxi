@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="color_background">#161320</color>
+    <color name="color_surface">#1F1A2E</color>
+    <color name="color_on_surface">#EBE5F7</color>
+    <color name="color_text_secondary">#B8AFCE</color>
+    <color name="color_input_bg">#2B2340</color>
+    <color name="color_reward_card">#241E38</color>
+</resources>
