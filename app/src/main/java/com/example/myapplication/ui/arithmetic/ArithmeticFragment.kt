@@ -19,6 +19,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import com.example.myapplication.R
+import com.example.myapplication.arithmetic.EnergyRules
 import com.example.myapplication.databinding.FragmentArithmeticBinding
 import kotlin.random.Random
 
@@ -134,7 +135,7 @@ class ArithmeticFragment : Fragment() {
                 }
                 if (feedback.isCorrect) {
                     toneGenerator?.startTone(ToneGenerator.TONE_PROP_BEEP, 180)
-                    vibrateShort()
+                    vibrateForEnergy()
                     bounceQuestion()
                     animateCorrect()
                 } else {
@@ -143,6 +144,10 @@ class ArithmeticFragment : Fragment() {
                     shakeInput()
                 }
             }
+        }
+
+        viewModel.energy.observe(viewLifecycleOwner) { energy ->
+            binding.energyBar.setEnergy(energy)
         }
 
         viewModel.combo.observe(viewLifecycleOwner) { combo ->
@@ -266,14 +271,15 @@ class ArithmeticFragment : Fragment() {
         }
     }
 
-    private fun vibrateShort() {
+    private fun vibrateForEnergy() {
+        val tier = EnergyRules.vibrationTierFor(currentViewModel.energy.value ?: 0f) ?: return
         val v = vibrator() ?: return
         if (!v.hasVibrator()) return
         if (Build.VERSION.SDK_INT >= 26) {
-            v.vibrate(VibrationEffect.createOneShot(40, VibrationEffect.DEFAULT_AMPLITUDE))
+            v.vibrate(VibrationEffect.createOneShot(tier.durationMs.toLong(), tier.amplitude))
         } else {
             @Suppress("DEPRECATION")
-            v.vibrate(40)
+            v.vibrate(tier.durationMs.toLong())
         }
     }
 

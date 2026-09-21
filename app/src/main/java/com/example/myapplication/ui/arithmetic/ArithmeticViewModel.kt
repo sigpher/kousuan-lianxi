@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData
 import com.example.myapplication.arithmetic.ArithmeticProblemGenerator
 import com.example.myapplication.arithmetic.ArithmeticQuestion
 import com.example.myapplication.arithmetic.ArithmeticRepository
+import com.example.myapplication.arithmetic.EnergyRules
 import com.example.myapplication.arithmetic.ResultComment
 import com.example.myapplication.arithmetic.ReviewSelector
 import com.example.myapplication.arithmetic.RewardRules
@@ -28,7 +29,10 @@ class ArithmeticViewModel(application: Application) : AndroidViewModel(applicati
     private val timerCallback = object : Runnable {
         override fun run() {
             _elapsedSeconds.value = (System.currentTimeMillis() - startTime) / 1000
-            if (_phase.value == QuizPhase.QUIZ) mainHandler.postDelayed(this, 1000)
+            if (_phase.value == QuizPhase.QUIZ) {
+                _energy.value = EnergyRules.afterDrain(_energy.value ?: 0f)
+                mainHandler.postDelayed(this, 1000)
+            }
         }
     }
 
@@ -65,6 +69,9 @@ class ArithmeticViewModel(application: Application) : AndroidViewModel(applicati
 
     private val _combo = MutableLiveData(0)
     val combo: LiveData<Int> = _combo
+
+    private val _energy = MutableLiveData(0f)
+    val energy: LiveData<Float> = _energy
 
     private val _newRecord = MutableLiveData(false)
     val newRecord: LiveData<Boolean> = _newRecord
@@ -130,10 +137,12 @@ class ArithmeticViewModel(application: Application) : AndroidViewModel(applicati
         if (isCorrect) {
             _score.value = (_score.value ?: 0) + 1
             _combo.value = (_combo.value ?: 0) + 1
+            _energy.value = EnergyRules.afterGain(_energy.value ?: 0f)
             if ((_combo.value ?: 0) > bestCombo) bestCombo = _combo.value ?: 0
             if (_reviewRound.value == true) repository.deleteWrong(question)
         } else {
             _combo.value = 0
+            _energy.value = 0f
             val wrong = WrongProblem(question, typed, System.currentTimeMillis())
             _wrongProblems.value = _wrongProblems.value.orEmpty() + wrong
             repository.recordWrong(question, typed)
@@ -208,6 +217,7 @@ class ArithmeticViewModel(application: Application) : AndroidViewModel(applicati
         _crownEarned.value = false
         _combo.value = 0
         bestCombo = 0
+        _energy.value = 0f
         _newRecord.value = false
         _reviewRound.value = review
         startTime = System.currentTimeMillis()
