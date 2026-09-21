@@ -7,7 +7,6 @@ import android.media.AudioManager
 import android.media.ToneGenerator
 import android.graphics.RenderEffect
 import android.graphics.Shader
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.VibrationEffect
@@ -17,9 +16,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.LinearInterpolator
-import android.widget.Button
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -28,7 +25,6 @@ import com.example.myapplication.R
 import com.example.myapplication.arithmetic.AccountRepository
 import com.example.myapplication.arithmetic.EnergyRules
 import com.example.myapplication.arithmetic.RewardRules
-import com.example.myapplication.audio.MusicMode
 import com.example.myapplication.audio.MusicPlayer
 import com.example.myapplication.databinding.FragmentArithmeticBinding
 import kotlin.random.Random
@@ -42,26 +38,8 @@ class ArithmeticFragment : Fragment() {
     private lateinit var currentViewModel: ArithmeticViewModel
     private lateinit var accountRepository: AccountRepository
     private var avatarSpinAnimator: ObjectAnimator? = null
-    private val modeDefaultColors = mutableMapOf<Int, ColorStateList>()
     private val playStateListener: (Boolean) -> Unit = { playing ->
         updateAvatarSpin(playing)
-    }
-
-    private val pickMusicDir = registerForActivityResult(
-        ActivityResultContracts.OpenDocumentTree()
-    ) { uri ->
-        if (uri != null) {
-            val ctx = _binding?.root?.context
-            if (ctx != null) {
-                MusicPlayer.setMusicDirectory(ctx, uri) { ok ->
-                    if (_binding == null) return@setMusicDirectory
-                    if (!ok) {
-                        Toast.makeText(ctx, R.string.music_dir_empty, Toast.LENGTH_SHORT).show()
-                    }
-                    refreshMusicSource()
-                }
-            }
-        }
     }
 
     override fun onCreateView(
@@ -113,79 +91,21 @@ class ArithmeticFragment : Fragment() {
         val welcomes = resources.getStringArray(R.array.setup_welcome)
         binding.textSetupWelcome.text = welcomes[Random.nextInt(welcomes.size)]
 
-        binding.switchMusic.isChecked = MusicPlayer.isEnabled(requireContext())
-        binding.switchMusic.setOnCheckedChangeListener { _, checked ->
-            MusicPlayer.setEnabled(requireContext(), checked)
+        binding.imgCurrentAvatar.setOnClickListener { toggleMusic() }
+        binding.btnSettings.setOnClickListener {
+            requireView().findNavController().navigate(R.id.nav_settings)
         }
-
-        setupMusicControls()
-
-        binding.btnAccount.setOnClickListener { showAccountSheet() }
     }
 
-    private fun setupMusicControls() {
+    private fun toggleMusic() {
         val context = requireContext()
-        val modeMap = listOf(
-            binding.btnModeSingle to MusicMode.SINGLE_LOOP,
-            binding.btnModeList to MusicMode.LIST_LOOP,
-            binding.btnModeShuffle to MusicMode.SHUFFLE
-        )
-        modeMap.forEach { (button, _) ->
-            modeDefaultColors[button.id] = button.textColors
-        }
-        modeMap.forEach { (button, mode) ->
-            button.setOnClickListener {
-                MusicPlayer.setMode(context, mode)
-                applyModeHighlight(modeMap, mode)
-            }
-        }
-        applyModeHighlight(modeMap, MusicPlayer.getMode(context))
-
-        binding.btnPickMusicDir.setOnClickListener {
-            pickMusicDir.launch(null)
-        }
-        binding.btnResetMusicDir.setOnClickListener {
-            MusicPlayer.clearMusicDirectory(_binding?.root?.context ?: context)
-            refreshMusicSource()
-        }
-        refreshMusicSource()
-    }
-
-    private fun applyModeHighlight(
-        modeMap: List<Pair<Button, MusicMode>>,
-        selected: MusicMode
-    ) {
-        val purple = ContextCompat.getColor(requireContext(), R.color.purple_500)
-        val white = ContextCompat.getColor(requireContext(), R.color.white)
-        modeMap.forEach { (button, mode) ->
-            val active = mode == selected
-            button.isActivated = active
-            button.alpha = if (active) 1f else 0.6f
-            button.backgroundTintList =
-                if (active) ColorStateList.valueOf(purple) else null
-            button.setTextColor(
-                if (active) ColorStateList.valueOf(white) else modeDefaultColors[button.id]
-            )
-        }
-    }
-
-    private fun refreshMusicSource() {
-        if (_binding == null) return
-        val context = _binding!!.root.context
-        val dirUri = MusicPlayer.musicDirectoryUri(context)
-        if (dirUri == null) {
-            binding.textMusicSource.text =
-                getString(R.string.music_source_builtin, MusicPlayer.builtinTrackCount())
-            binding.btnResetMusicDir.visibility = View.GONE
-        } else {
-            val name = runCatching { Uri.parse(dirUri) }
-                .getOrNull()
-                ?.lastPathSegment
-                ?.takeIf { it.isNotBlank() }
-                ?: dirUri
-            binding.textMusicSource.text = getString(R.string.music_source_custom, name)
-            binding.btnResetMusicDir.visibility = View.VISIBLE
-        }
+        val enabled = !MusicPlayer.isEnabled(context)
+        MusicPlayer.setEnabled(context, enabled)
+        Toast.makeText(
+            context,
+            if (enabled) R.string.music_toast_on else R.string.music_toast_off,
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
     private fun updateAvatarSpin(playing: Boolean) {
@@ -212,15 +132,6 @@ class ArithmeticFragment : Fragment() {
             avatarSpinAnimator = null
             binding.imgCurrentAvatar.rotation = 0f
         }
-    }
-
-    private fun showAccountSheet() {
-        val sheet = AccountBottomSheet()
-        sheet.onAccountChanged = {
-            refreshAccount()
-            currentViewModel.refreshRewardCounts()
-        }
-        sheet.show(parentFragmentManager, "account_sheet")
     }
 
     private fun refreshAccount() {
@@ -556,6 +467,13 @@ class ArithmeticFragment : Fragment() {
         val m = seconds / 60
         val s = seconds % 60
         return "%02d:%02d".format(m, s)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (_binding != null) {
+            refreshAccount()
+        }
     }
 
     override fun onStart() {

@@ -23,10 +23,10 @@
         <item>挑战一下吧，你能做到全对！</item>
     </string-array>
     <string name="choose_count">题目数量</string>
-    <string name="count_10">10 题</string>
-    <string name="count_20">20 题</string>
-    <string name="count_50">50 题</string>
-    <string name="count_100">100 题</string>
+    <string name="count_10">10</string>
+    <string name="count_20">20</string>
+    <string name="count_50">50</string>
+    <string name="count_100">100</string>
     <string name="btn_start">开始练习</string>
     <string name="btn_review_wrong">错题重练</string>
     <string name="btn_endless">无限挑战</string>
@@ -38,6 +38,11 @@
     <string name="btn_open_history">查看历史错题</string>
     <string name="btn_open_achievements">查看成就</string>
 
+    <string name="settings_title">设置</string>
+    <string name="settings_account_title">账号</string>
+    <string name="settings_music_title">音乐</string>
+    <string name="music_toast_on">🎵 背景音乐已开启</string>
+    <string name="music_toast_off">🎵 背景音乐已关闭</string>
     <string name="music_mode_label">播放模式</string>
     <string name="music_mode_single">单曲循环</string>
     <string name="music_mode_list">列表循环</string>
