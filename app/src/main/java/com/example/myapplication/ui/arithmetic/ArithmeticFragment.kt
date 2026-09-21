@@ -94,7 +94,7 @@ class ArithmeticFragment : Fragment() {
 
     private fun setupResult(viewModel: ArithmeticViewModel) {
         binding.btnRetry.setOnClickListener { viewModel.startRound() }
-        binding.btnRedoWrong.setOnClickListener { viewModel.startReviewRound() }
+        binding.btnRedoWrong.setOnClickListener { viewModel.startRoundRedo() }
         binding.btnBackSetup.setOnClickListener { viewModel.backToSetup() }
     }
 
@@ -106,7 +106,10 @@ class ArithmeticFragment : Fragment() {
                 if (phase == QuizPhase.QUIZ) View.VISIBLE else View.GONE
             binding.phaseResult.visibility =
                 if (phase == QuizPhase.RESULT) View.VISIBLE else View.GONE
-            if (phase == QuizPhase.SETUP) viewModel.refreshCrownCount()
+            if (phase == QuizPhase.SETUP) {
+                viewModel.refreshCrownCount()
+                viewModel.refreshSapphireCount()
+            }
             if (phase == QuizPhase.RESULT) renderResult(viewModel)
         }
 
@@ -167,6 +170,10 @@ class ArithmeticFragment : Fragment() {
             binding.textSetupCrown.text = getString(R.string.setup_crown_chip, count)
         }
 
+        viewModel.sapphireCount.observe(viewLifecycleOwner) { count ->
+            binding.textSetupGem.text = getString(R.string.setup_gem_chip, count)
+        }
+
         viewModel.questionCount.observe(viewLifecycleOwner) { selected ->
             val buttons = listOf(
                 binding.count10 to 10,
@@ -206,6 +213,10 @@ class ArithmeticFragment : Fragment() {
         val total = viewModel.questionCount()
         val earnedCrown = viewModel.crownEarned.value == true
         binding.textResultCrown.visibility = if (earnedCrown) View.VISIBLE else View.GONE
+        val earnedSapphire = viewModel.sapphireEarned.value == true
+        binding.textResultSapphire.visibility = if (earnedSapphire) View.VISIBLE else View.GONE
+        binding.btnRedoWrong.visibility =
+            if (viewModel.canRedo.value == true) View.VISIBLE else View.GONE
         binding.textResultScore.text =
             getString(R.string.result_score, viewModel.score.value ?: 0, total)
         val seconds = viewModel.elapsedSeconds.value ?: 0L

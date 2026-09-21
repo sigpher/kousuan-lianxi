@@ -10,4 +10,5 @@
     <color name="color_correct">#FF2E7D32</color>
     <color name="color_wrong">#FFC62828</color>
     <color name="color_gold">#FFD700</color>
+    <color name="color_sapphire">#FF1E88E5</color>
 </resources>

@@ -15,10 +15,15 @@ object ReviewSelector {
 
 object RewardRules {
     const val CROWN = "crown"
+    const val SAPPHIRE = "sapphire"
     val CROWN_QUESTION_COUNTS: Set<Int> = setOf(50, 100)
+    val SAPPHIRE_QUESTION_COUNTS: Set<Int> = setOf(50, 100)
 
     fun awardsCrown(plannedCount: Int, score: Int, review: Boolean): Boolean =
         !review && plannedCount in CROWN_QUESTION_COUNTS && score == plannedCount
+
+    fun awardsSapphire(plannedCount: Int, score: Int, total: Int, review: Boolean): Boolean =
+        review && plannedCount in SAPPHIRE_QUESTION_COUNTS && total > 0 && score == total
 
     val CROWN_LEVEL_THRESHOLDS: List<Int> = listOf(0, 1, 3, 6, 10)
 

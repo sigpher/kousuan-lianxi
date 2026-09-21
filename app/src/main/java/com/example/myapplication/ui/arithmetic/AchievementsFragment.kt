@@ -42,6 +42,10 @@ class AchievementsFragment : Fragment() {
                 )
             }
         }
+        viewModel.sapphireCount.observe(viewLifecycleOwner) { count ->
+            binding.textSapphireCount.text =
+                getString(R.string.achievement_sapphire_count, count)
+        }
         viewModel.records.observe(viewLifecycleOwner) { records ->
             binding.textRecordsHeader.visibility =
                 if (records.isEmpty()) View.GONE else View.VISIBLE
@@ -56,6 +60,7 @@ class AchievementsFragment : Fragment() {
             }
         }
         viewModel.loadCrownCount()
+        viewModel.loadSapphireCount()
         viewModel.loadRecords()
         return view
     }

@@ -67,6 +67,12 @@ class ArithmeticViewModel(application: Application) : AndroidViewModel(applicati
     private val _crownEarned = MutableLiveData(false)
     val crownEarned: LiveData<Boolean> = _crownEarned
 
+    private val _sapphireEarned = MutableLiveData(false)
+    val sapphireEarned: LiveData<Boolean> = _sapphireEarned
+
+    private val _canRedo = MutableLiveData(false)
+    val canRedo: LiveData<Boolean> = _canRedo
+
     private val _combo = MutableLiveData(0)
     val combo: LiveData<Int> = _combo
 
@@ -79,11 +85,15 @@ class ArithmeticViewModel(application: Application) : AndroidViewModel(applicati
     private val _crownCount = MutableLiveData(0)
     val crownCount: LiveData<Int> = _crownCount
 
+    private val _sapphireCount = MutableLiveData(0)
+    val sapphireCount: LiveData<Int> = _sapphireCount
+
     private val _message = MutableLiveData<String?>(null)
     val message: LiveData<String?> = _message
 
     private var startTime = 0L
     private var bestCombo = 0
+    private var redoUsed = false
 
     fun questionCount(): Int = _questions.value?.size ?: 0
 
@@ -94,6 +104,12 @@ class ArithmeticViewModel(application: Application) : AndroidViewModel(applicati
     fun refreshCrownCount() {
         repository.countRewards(RewardRules.CROWN) { count ->
             mainHandler.post { _crownCount.value = count }
+        }
+    }
+
+    fun refreshSapphireCount() {
+        repository.countRewards(RewardRules.SAPPHIRE) { count ->
+            mainHandler.post { _sapphireCount.value = count }
         }
     }
 
@@ -112,6 +128,17 @@ class ArithmeticViewModel(application: Application) : AndroidViewModel(applicati
                 }
             }
         }
+    }
+
+    fun startRoundRedo() {
+        val wrongs = _wrongProblems.value.orEmpty()
+        if (wrongs.isEmpty()) {
+            _message.value = "没有需要重做的错题"
+            return
+        }
+        begin(wrongs.shuffled().map { it.question }, review = true)
+        redoUsed = true
+        _canRedo.value = false
     }
 
     fun currentQuestion(): ArithmeticQuestion? =
@@ -163,18 +190,28 @@ class ArithmeticViewModel(application: Application) : AndroidViewModel(applicati
         if (idx >= total) {
             stopTimer()
             _elapsedSeconds.value = (System.currentTimeMillis() - startTime) / 1000
+            val review = _reviewRound.value ?: false
+            val plannedCount = _questionCount.value ?: total
+            val score = _score.value ?: 0
+            val wrongCount = _wrongProblems.value.orEmpty().size
             val earnedCrown = RewardRules.awardsCrown(
-                plannedCount = _questionCount.value ?: total,
-                score = _score.value ?: 0,
-                review = _reviewRound.value ?: false
+                plannedCount = plannedCount,
+                score = score,
+                review = review
             )
             _crownEarned.value = earnedCrown
             if (earnedCrown) {
                 repository.insertReward(RewardRules.CROWN)
                 _message.value = "太棒了！奖励一枚皇冠 👑"
             }
-            if (_reviewRound.value != true && total > 0) {
-                val score = _score.value ?: 0
+            if (RewardRules.awardsSapphire(plannedCount, score, total, review) && redoUsed) {
+                repository.insertReward(RewardRules.SAPPHIRE)
+                _sapphireEarned.value = true
+                _message.value = "太棒了！错题全部改正，奖励一颗蓝宝石 💎"
+            }
+            _canRedo.value = !review && redoUsed.not() &&
+                plannedCount in RewardRules.SAPPHIRE_QUESTION_COUNTS && wrongCount > 0
+            if (!review && total > 0) {
                 val seconds = (_elapsedSeconds.value ?: 0L).toInt()
                 repository.updateRecord(total, score, seconds, bestCombo) { improved ->
                     mainHandler.post { _newRecord.value = improved }
@@ -215,6 +252,9 @@ class ArithmeticViewModel(application: Application) : AndroidViewModel(applicati
         _feedback.value = null
         _wrongProblems.value = emptyList()
         _crownEarned.value = false
+        _sapphireEarned.value = false
+        _canRedo.value = false
+        redoUsed = false
         _combo.value = 0
         bestCombo = 0
         _energy.value = 0f

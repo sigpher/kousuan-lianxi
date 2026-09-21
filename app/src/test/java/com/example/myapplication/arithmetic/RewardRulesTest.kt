@@ -37,6 +37,20 @@ class RewardRulesTest {
     }
 
     @Test
+    fun sapphireRequiresFullyCorrectReviewOfFiftyOrHundred() {
+        assertTrue(RewardRules.awardsSapphire(plannedCount = 50, score = 5, total = 5, review = true))
+        assertTrue(RewardRules.awardsSapphire(plannedCount = 100, score = 3, total = 3, review = true))
+    }
+
+    @Test
+    fun sapphireDeniedWhenReviewNotPerfect() {
+        assertFalse(RewardRules.awardsSapphire(plannedCount = 50, score = 4, total = 5, review = true))
+        assertFalse(RewardRules.awardsSapphire(plannedCount = 50, score = 5, total = 5, review = false))
+        assertFalse(RewardRules.awardsSapphire(plannedCount = 20, score = 4, total = 4, review = true))
+        assertFalse(RewardRules.awardsSapphire(plannedCount = 50, score = 0, total = 0, review = true))
+    }
+
+    @Test
     fun levelIndexForCrowns() {
         assertEquals(0, RewardRules.levelIndexForCrowns(0))
         assertEquals(1, RewardRules.levelIndexForCrowns(1))

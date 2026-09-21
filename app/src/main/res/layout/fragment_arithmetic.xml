@@ -50,6 +50,15 @@
             android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/text_setup_gem"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/color_sapphire"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
@@ -414,6 +423,18 @@
                 android:visibility="gone" />
 
             <TextView
+                android:id="@+id/text_result_sapphire"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:text="@string/result_sapphire"
+                android:textColor="@color/color_sapphire"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <TextView
                 android:id="@+id/text_result_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -489,7 +510,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:text="@string/btn_review_wrong" />
+                android:text="@string/btn_redo_result" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:gravity="center"
+                android:text="@string/result_redo"
+                android:textColor="@color/color_sapphire"
+                android:textSize="14sp" />
 
             <Button
                 android:id="@+id/btn_retry"
