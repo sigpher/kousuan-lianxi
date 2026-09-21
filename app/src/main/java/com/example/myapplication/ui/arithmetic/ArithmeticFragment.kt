@@ -3,6 +3,8 @@ package com.example.myapplication.ui.arithmetic
 import android.content.res.ColorStateList
 import android.media.AudioManager
 import android.media.ToneGenerator
+import android.graphics.RenderEffect
+import android.graphics.Shader
 import android.os.Build
 import android.os.Bundle
 import android.os.VibrationEffect
@@ -19,6 +21,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import com.example.myapplication.R
+import com.example.myapplication.arithmetic.AccountRepository
 import com.example.myapplication.arithmetic.EnergyRules
 import com.example.myapplication.arithmetic.RewardRules
 import com.example.myapplication.audio.MusicPlayer
@@ -32,6 +35,7 @@ class ArithmeticFragment : Fragment() {
     private var defaultCountTextColors: ColorStateList? = null
     private var toneGenerator: ToneGenerator? = null
     private lateinit var currentViewModel: ArithmeticViewModel
+    private lateinit var accountRepository: AccountRepository
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -40,6 +44,7 @@ class ArithmeticFragment : Fragment() {
     ): View {
         _binding = FragmentArithmeticBinding.inflate(inflater, container, false)
         val view = binding.root
+        accountRepository = AccountRepository(requireContext())
         currentViewModel = ViewModelProvider(this).get(ArithmeticViewModel::class.java)
         toneGenerator = try {
             ToneGenerator(AudioManager.STREAM_MUSIC, 80)
@@ -50,11 +55,13 @@ class ArithmeticFragment : Fragment() {
         setupQuiz(currentViewModel)
         setupResult(currentViewModel)
         observe(currentViewModel)
+        refreshAccount()
         return view
     }
 
     private fun setupSetup(viewModel: ArithmeticViewModel) {
         binding.btnStart.setOnClickListener { viewModel.startRound() }
+        binding.btnEndless.setOnClickListener { viewModel.startEndless() }
         binding.btnReview.setOnClickListener { viewModel.startReviewRound() }
         binding.btnOpenReview.setOnClickListener {
             requireView().findNavController().navigate(R.id.nav_review)
@@ -83,6 +90,35 @@ class ArithmeticFragment : Fragment() {
         binding.switchMusic.setOnCheckedChangeListener { _, checked ->
             MusicPlayer.setEnabled(requireContext(), checked)
         }
+
+        binding.btnAccount.setOnClickListener { showAccountSheet() }
+    }
+
+    private fun showAccountSheet() {
+        val sheet = AccountBottomSheet()
+        sheet.onAccountChanged = {
+            refreshAccount()
+            currentViewModel.refreshRewardCounts()
+        }
+        sheet.show(parentFragmentManager, "account_sheet")
+    }
+
+    private fun refreshAccount() {
+        accountRepository.currentUser { user ->
+            activity?.runOnUiThread {
+                if (_binding == null) return@runOnUiThread
+                if (user == null) {
+                    binding.textCurrentUser.setText(R.string.account_guest)
+                    binding.textCurrentUserHint.visibility = View.VISIBLE
+                    binding.textCurrentUserHint.setText(R.string.account_guest_hint)
+                    AvatarUtil.load(binding.imgCurrentAvatar, null)
+                } else {
+                    binding.textCurrentUser.text = user.username
+                    binding.textCurrentUserHint.visibility = View.GONE
+                    AvatarUtil.load(binding.imgCurrentAvatar, user.avatarPath)
+                }
+            }
+        }
     }
 
     private fun setupQuiz(viewModel: ArithmeticViewModel) {
@@ -104,6 +140,9 @@ class ArithmeticFragment : Fragment() {
         binding.keyBackspace.setOnClickListener { viewModel.onBackspace() }
         binding.keyOk.setOnClickListener { viewModel.onSubmit() }
         binding.btnExit.setOnClickListener { viewModel.backToSetup() }
+        binding.btnPause.setOnClickListener { viewModel.pause() }
+        binding.btnResume.setOnClickListener { viewModel.resume() }
+        binding.btnPauseExit.setOnClickListener { viewModel.backToSetup() }
     }
 
     private fun setupResult(viewModel: ArithmeticViewModel) {
@@ -126,9 +165,32 @@ class ArithmeticFragment : Fragment() {
             if (phase == QuizPhase.RESULT) renderResult(viewModel)
         }
 
+        viewModel.paused.observe(viewLifecycleOwner) { paused ->
+            binding.phasePause.visibility = if (paused) View.VISIBLE else View.GONE
+            if (Build.VERSION.SDK_INT >= 31) {
+                binding.phaseQuiz.setRenderEffect(
+                    if (paused) {
+                        RenderEffect.createBlurEffect(16f, 16f, Shader.TileMode.CLAMP)
+                    } else {
+                        null
+                    }
+                )
+            }
+        }
+
         viewModel.index.observe(viewLifecycleOwner) { index ->
             binding.textQuestion.text = viewModel.currentQuestion()?.text.orEmpty()
-            binding.textProgress.text = "第 ${index + 1} 题"
+            binding.textProgress.text = if (viewModel.endless.value == true) {
+                getString(R.string.endless_progress, viewModel.score.value ?: 0)
+            } else {
+                "第 ${index + 1} 题"
+            }
+        }
+
+        viewModel.score.observe(viewLifecycleOwner) { score ->
+            if (viewModel.endless.value == true) {
+                binding.textProgress.text = getString(R.string.endless_progress, score ?: 0)
+            }
         }
 
         viewModel.input.observe(viewLifecycleOwner) { value ->
@@ -219,7 +281,11 @@ class ArithmeticFragment : Fragment() {
 
         viewModel.reviewRound.observe(viewLifecycleOwner) { review ->
             binding.quizTitle.text = getString(
-                if (review) R.string.quiz_review else R.string.quiz_practice
+                when {
+                    viewModel.endless.value == true -> R.string.quiz_endless
+                    review -> R.string.quiz_review
+                    else -> R.string.quiz_practice
+                }
             )
         }
 
@@ -247,13 +313,29 @@ class ArithmeticFragment : Fragment() {
         } else {
             binding.textResultReward.visibility = View.GONE
         }
+        val score = viewModel.score.value ?: 0
+        if (viewModel.endless.value == true) {
+            val endlessSummary = viewModel.endlessReward.value
+            if (endlessSummary != null) {
+                binding.textResultReward.visibility = View.VISIBLE
+                binding.textResultReward.text =
+                    getString(R.string.result_reward_endless, endlessSummary)
+                binding.textResultReward.setTextColor(
+                    ContextCompat.getColor(requireContext(), R.color.color_gold)
+                )
+            }
+        }
         binding.btnRedoWrong.visibility =
             if (viewModel.canRedo.value == true) View.VISIBLE else View.GONE
-        binding.textResultScore.text =
-            getString(R.string.result_score, viewModel.score.value ?: 0, total)
+        binding.textResultScore.text = if (viewModel.endless.value == true) {
+            getString(R.string.endless_score, score)
+        } else {
+            getString(R.string.result_score, score, total)
+        }
         val seconds = viewModel.elapsedSeconds.value ?: 0L
         binding.textResultTime.text = getString(R.string.result_time, formatTime(seconds))
-        val avg = if (total <= 0) 0.0 else seconds.toDouble() / total
+        val avgTotal = if (viewModel.endless.value == true) score.coerceAtLeast(1) else total
+        val avg = if (avgTotal <= 0) 0.0 else seconds.toDouble() / avgTotal
         binding.textResultAvg.text =
             getString(R.string.result_avg, "%.1f".format(avg))
         val comment = viewModel.resultComment()

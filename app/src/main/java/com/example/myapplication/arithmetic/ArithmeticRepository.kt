@@ -19,6 +19,7 @@ import com.example.myapplication.arithmetic.ArithmeticDbHelper.Companion.REWARDS
 import com.example.myapplication.arithmetic.ArithmeticDbHelper.Companion.REWARD_TYPE
 import com.example.myapplication.arithmetic.ArithmeticDbHelper.Companion.TABLE
 import com.example.myapplication.arithmetic.ArithmeticDbHelper.Companion.USER_ANSWER
+import com.example.myapplication.arithmetic.ArithmeticDbHelper.Companion.USER_ID
 import android.database.sqlite.SQLiteDatabase
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -28,16 +29,21 @@ class ArithmeticRepository(context: Context) {
     private val dbHelper = ArithmeticDbHelper(context.applicationContext)
     private val executor: ExecutorService = Executors.newSingleThreadExecutor()
 
-    fun recordWrong(question: ArithmeticQuestion, userAnswer: String) {
+    private fun userIdArg(userId: Int): Array<String> = arrayOf(userId.toString())
+
+    private fun sameUser(userId: Int): String = "$USER_ID=?"
+
+    fun recordWrong(question: ArithmeticQuestion, userAnswer: String, userId: Int) {
         executor.execute {
             val db = dbHelper.writableDatabase
-            val where = "$OP_A=? AND $OP_B=? AND $OPERATOR=?"
+            val where = "$USER_ID=? AND $OP_A=? AND $OP_B=? AND $OPERATOR=?"
             db.delete(
                 TABLE,
                 where,
-                wrongKeyArgs(question)
+                listOf(userId.toString(), *wrongKeyArgs(question)).toTypedArray()
             )
             val values = ContentValues().apply {
+                put(USER_ID, userId)
                 put(OP_A, question.operandA)
                 put(OP_B, question.operandB)
                 put(OPERATOR, question.operator.name)
@@ -50,12 +56,12 @@ class ArithmeticRepository(context: Context) {
         }
     }
 
-    fun deleteWrong(question: ArithmeticQuestion) {
+    fun deleteWrong(question: ArithmeticQuestion, userId: Int) {
         executor.execute {
             dbHelper.writableDatabase.delete(
                 TABLE,
-                "$OP_A=? AND $OP_B=? AND $OPERATOR=?",
-                wrongKeyArgs(question)
+                "$USER_ID=? AND $OP_A=? AND $OP_B=? AND $OPERATOR=?",
+                listOf(userId.toString(), *wrongKeyArgs(question)).toTypedArray()
             )
         }
     }
@@ -66,10 +72,11 @@ class ArithmeticRepository(context: Context) {
         question.operator.name
     )
 
-    fun insertReward(type: String) {
+    fun insertReward(type: String, userId: Int) {
         executor.execute {
             val db = dbHelper.writableDatabase
             val values = ContentValues().apply {
+                put(USER_ID, userId)
                 put(REWARD_TYPE, type)
                 put(REWARD_EARNED_AT, System.currentTimeMillis())
             }
@@ -89,16 +96,18 @@ class ArithmeticRepository(context: Context) {
         score: Int,
         timeSeconds: Int,
         combo: Int,
+        userId: Int,
         callback: (Boolean) -> Unit
     ) {
         executor.execute {
             val db = dbHelper.writableDatabase
-            val existing = queryRecord(count)
+            val existing = queryRecord(count, userId)
             val improved = existing == null ||
                 score > existing.bestScore ||
                 (score == existing.bestScore && timeSeconds < existing.bestTimeSeconds)
             if (improved) {
                 val values = ContentValues().apply {
+                    put(USER_ID, userId)
                     put(RECORD_COUNT, count)
                     put(RECORD_BEST_SCORE, score)
                     put(RECORD_BEST_TIME, timeSeconds)
@@ -111,11 +120,19 @@ class ArithmeticRepository(context: Context) {
         }
     }
 
-    fun fetchRecords(callback: (List<Record>) -> Unit) {
+    fun fetchRecords(userId: Int, callback: (List<Record>) -> Unit) {
         executor.execute {
             val db = dbHelper.readableDatabase
             val records = mutableListOf<Record>()
-            db.query(RECORDS_TABLE, null, null, null, null, null, "$RECORD_COUNT ASC").use { cursor ->
+            db.query(
+                RECORDS_TABLE,
+                null,
+                sameUser(userId),
+                userIdArg(userId),
+                null,
+                null,
+                "$RECORD_COUNT ASC"
+            ).use { cursor ->
                 while (cursor.moveToNext()) {
                     records += Record(
                         count = cursor.getInt(cursor.getColumnIndexOrThrow(RECORD_COUNT)),
@@ -129,13 +146,13 @@ class ArithmeticRepository(context: Context) {
         }
     }
 
-    private fun queryRecord(count: Int): Record? {
+    private fun queryRecord(count: Int, userId: Int): Record? {
         val db = dbHelper.readableDatabase
         db.query(
             RECORDS_TABLE,
             null,
-            "$RECORD_COUNT=?",
-            arrayOf(count.toString()),
+            "$USER_ID=? AND $RECORD_COUNT=?",
+            arrayOf(userId.toString(), count.toString()),
             null,
             null,
             null
@@ -153,14 +170,14 @@ class ArithmeticRepository(context: Context) {
         }
     }
 
-    fun countRewards(type: String, callback: (Int) -> Unit) {
+    fun countRewards(type: String, userId: Int, callback: (Int) -> Unit) {
         executor.execute {
             val db = dbHelper.readableDatabase
             val count = db.query(
                 REWARDS_TABLE,
                 null,
-                "$REWARD_TYPE=?",
-                arrayOf(type),
+                "$USER_ID=? AND $REWARD_TYPE=?",
+                arrayOf(userId.toString(), type),
                 null,
                 null,
                 null
@@ -169,24 +186,30 @@ class ArithmeticRepository(context: Context) {
         }
     }
 
-    fun fetchWrong(callback: (List<WrongProblem>) -> Unit) {
+    fun fetchWrong(userId: Int, callback: (List<WrongProblem>) -> Unit) {
         executor.execute {
-            val problems = readProblems(TABLE)
-            callback(problems)
+            callback(readProblems(TABLE, userId))
         }
     }
 
-    fun fetchHistory(callback: (List<WrongProblem>) -> Unit) {
+    fun fetchHistory(userId: Int, callback: (List<WrongProblem>) -> Unit) {
         executor.execute {
-            val problems = readProblems(HISTORY_TABLE)
-            callback(problems)
+            callback(readProblems(HISTORY_TABLE, userId))
         }
     }
 
-    private fun readProblems(table: String): List<WrongProblem> {
+    private fun readProblems(table: String, userId: Int): List<WrongProblem> {
         val db = dbHelper.readableDatabase
         val problems = mutableListOf<WrongProblem>()
-        db.query(table, null, null, null, null, null, "$CREATED_AT DESC").use { cursor ->
+        db.query(
+            table,
+            null,
+            sameUser(userId),
+            userIdArg(userId),
+            null,
+            null,
+            "$CREATED_AT DESC"
+        ).use { cursor ->
             while (cursor.moveToNext()) {
                 problems += WrongProblem(
                     question = ArithmeticQuestion(

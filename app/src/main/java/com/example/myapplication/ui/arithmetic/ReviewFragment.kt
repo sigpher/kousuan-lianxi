@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.myapplication.arithmetic.AccountRepository
 import com.example.myapplication.arithmetic.ArithmeticRepository
 import com.example.myapplication.arithmetic.WrongProblem
 import com.example.myapplication.databinding.FragmentReviewBinding
@@ -31,7 +32,8 @@ class ReviewFragment : Fragment() {
         binding.recyclerReview.adapter = adapter
 
         val activity = requireActivity()
-        ArithmeticRepository(view.context).fetchWrong { list ->
+        val userId = AccountRepository(view.context).currentUserId()
+        ArithmeticRepository(view.context).fetchWrong(userId) { list ->
             activity.runOnUiThread {
                 val current = _binding ?: return@runOnUiThread
                 current.textReviewEmpty.visibility =
